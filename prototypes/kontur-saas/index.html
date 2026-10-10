@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kontur — Wireframe &amp; Prototyping-Konzept</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1B2A4A;
+    --ink-soft:#5B6478;
+    --ink-faint:#8E96AA;
+    --paper:#F5F7FC;
+    --line:rgba(47,93,255,.10);
+    --artboard:#FFFFFF;
+    --accent:#2F5DFF;
+    --accent-dark:#1E3FCC;
+    --accent-soft:#EAF0FF;
+    --error:#FF5470;
+    --error-soft:#FFE9ED;
+    --success:#1FAA59;
+    --success-soft:#E4F8EC;
+    --border:#DDE2F0;
+    --border-soft:#EBEEF7;
+    --radius:18px;
+    --font-display:'Space Grotesk',sans-serif;
+    --font-body:'Inter',sans-serif;
+    --font-mono:'JetBrains Mono',monospace;
+    --dur-micro:150ms;
+    --dur-standard:300ms;
+    --ease-out:cubic-bezier(.16,1,.3,1);
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    font-family:var(--font-body);
+    color:var(--ink);
+    background:
+      linear-gradient(var(--line) 1px, transparent 1px) 0 0/40px 40px,
+      linear-gradient(90deg, var(--line) 1px, transparent 1px) 0 0/40px 40px,
+      var(--paper);
+    -webkit-font-smoothing:antialiased;
+  }
+  img,svg{display:block;}
+  button{font-family:inherit;}
+
+  a:focus-visible, button:focus-visible, input:focus-visible{
+    outline:2px solid var(--accent);
+    outline-offset:2px;
+  }
+
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px;}
+
+  /* ---------- Page head ---------- */
+  .page-head{padding:56px 0 28px;}
+  .page-head .kicker{
+    font-family:var(--font-mono);
+    font-size:12px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--accent);
+    display:flex;align-items:center;gap:8px;
+    margin-bottom:14px;
+  }
+  .page-head .kicker::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent);}
+  .page-head h1{
+    font-family:var(--font-display);
+    font-size:clamp(28px,4vw,44px);
+    line-height:1.1;
+    margin:0 0 12px;
+    letter-spacing:-.01em;
+  }
+  .page-head p{
+    max-width:640px;
+    color:var(--ink-soft);
+    font-size:16px;
+    line-height:1.6;
+    margin:0 0 24px;
+  }
+  .legend{display:flex;flex-wrap:wrap;gap:10px 18px;font-family:var(--font-mono);font-size:12px;color:var(--ink-soft);}
+  .legend .chip{display:inline-flex;align-items:center;gap:7px;}
+  .legend .dot{width:9px;height:9px;border-radius:50%;flex:none;}
+  .dot.default{background:var(--ink-faint);}
+  .dot.hover{background:var(--accent);}
+  .dot.active{background:var(--accent-dark);}
+  .dot.error{background:var(--error);}
+  .dot.success{background:var(--success);}
+
+  /* ---------- Artboards ---------- */
+  main{padding-bottom:40px;}
+  .artboard{
+    position:relative;
+    background:var(--artboard);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    margin:0 0 32px;
+    padding:38px clamp(20px,4vw,52px) 34px;
+    box-shadow:0 1px 2px rgba(27,42,74,.04);
+  }
+  .artboard::before,.artboard::after{
+    content:"";position:absolute;width:16px;height:16px;
+    border-color:var(--accent);border-style:solid;opacity:.5;
+  }
+  .artboard::before{top:10px;left:10px;border-width:2px 0 0 2px;}
+  .artboard::after{bottom:10px;right:10px;border-width:0 2px 2px 0;}
+
+  .art-meta{
+    display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 16px;
+    margin-bottom:28px;padding-bottom:16px;border-bottom:1px dashed var(--border);
+  }
+  .art-meta .tag{
+    font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--ink);background:var(--accent-soft);
+    padding:4px 9px;border-radius:5px;
+  }
+  .art-meta .desc{font-size:13.5px;color:var(--ink-soft);}
+
+  .stage{margin-bottom:30px;}
+
+  /* numbered annotation pins */
+  .pin-host{position:relative;}
+  .pin{
+    position:absolute;top:-10px;right:-10px;
+    width:22px;height:22px;border-radius:50%;
+    background:var(--ink);color:#fff;border:2px solid #fff;
+    font-family:var(--font-mono);font-size:11px;font-weight:500;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 2px 5px rgba(27,42,74,.25);
+    z-index:3;pointer-events:none;
+  }
+
+  /* spec panel (per component) */
+  .spec-panel{border-top:1px dashed var(--border);padding-top:18px;}
+  .spec-panel h3{
+    font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--ink-faint);margin:0 0 12px;
+  }
+  .spec-table{width:100%;border-collapse:collapse;font-size:13px;}
+  .spec-table th{
+    text-align:left;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--ink-faint);font-weight:500;
+    padding:0 12px 8px 0;border-bottom:1px solid var(--border-soft);
+  }
+  .spec-table td{padding:9px 12px 9px 0;border-bottom:1px solid var(--border-soft);vertical-align:top;color:var(--ink-soft);}
+  .spec-table td:first-child{white-space:nowrap;}
+  .spec-table tr:last-child td{border-bottom:none;}
+  .state-chip{
+    display:inline-flex;align-items:center;gap:6px;
+    font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:.04em;
+    color:var(--ink);
+  }
+  .state-chip .dot{width:8px;height:8px;border-radius:50%;flex:none;}
+  .mono{font-family:var(--font-mono);font-size:12px;color:var(--ink);}
+
+  /* state-demo switcher */
+  .demo-switch{
+    display:inline-flex;gap:2px;background:var(--paper);border:1px solid var(--border);
+    border-radius:9px;padding:3px;margin-bottom:18px;
+  }
+  .demo-switch button{
+    border:none;background:transparent;padding:6px 12px;border-radius:6px;
+    font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:.05em;
+    color:var(--ink-soft);cursor:pointer;transition:background var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out);
+  }
+  .demo-switch button.is-active{background:var(--ink);color:#fff;}
+  .demo-switch button:hover:not(.is-active){background:var(--accent-soft);color:var(--accent-dark);}
+
+  /* ---------- Hero ---------- */
+  .hero-stage{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center;}
+  .hero-eyebrow{
+    font-family:var(--font-mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--accent);margin-bottom:14px;
+  }
+  .hero-copy h2{
+    font-family:var(--font-display);font-size:clamp(30px,3.6vw,46px);line-height:1.08;
+    margin:0 0 18px;letter-spacing:-.01em;
+  }
+  .hero-copy p{font-size:16.5px;line-height:1.65;color:var(--ink-soft);max-width:440px;margin:0 0 26px;}
+  .hero-actions{display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-bottom:14px;}
+
+  .btn-primary{
+    position:relative;
+    display:inline-flex;align-items:center;gap:10px;
+    background:var(--accent);color:#fff;border:none;border-radius:11px;
+    padding:14px 22px;font-size:15px;font-weight:600;cursor:pointer;
+    box-shadow:0 1px 2px rgba(47,93,255,.15);
+    transition:transform var(--dur-standard) var(--ease-out),
+               box-shadow var(--dur-standard) var(--ease-out),
+               background var(--dur-standard) var(--ease-out);
+  }
+  .btn-primary svg{transition:transform var(--dur-standard) var(--ease-out);}
+  .btn-primary:hover, .btn-primary.force-hover{
+    background:#3F6BFF;transform:scale(1.03);
+    box-shadow:0 10px 24px -8px rgba(47,93,255,.55);
+  }
+  .btn-primary:hover svg, .btn-primary.force-hover svg{transform:translateX(4px);}
+  .btn-primary:active, .btn-primary.force-active{
+    transform:scale(.97);background:var(--accent-dark);
+    box-shadow:0 2px 6px rgba(47,93,255,.3);
+    transition-duration:120ms;
+  }
+
+  .link-secondary{
+    display:inline-flex;align-items:center;gap:7px;color:var(--ink);text-decoration:none;
+    font-weight:600;font-size:14.5px;border-bottom:1px solid var(--border);padding-bottom:2px;
+    transition:border-color var(--dur-standard) var(--ease-out), color var(--dur-standard) var(--ease-out);
+  }
+  .link-secondary:hover{border-color:var(--accent);color:var(--accent);}
+
+  .hero-trust{font-family:var(--font-mono);font-size:12px;color:var(--ink-faint);}
+
+  .hero-visual{
+    background:var(--paper);border:1px solid var(--border);border-radius:16px;
+    padding:22px;position:relative;overflow:hidden;
+  }
+  .hero-visual svg{width:100%;height:auto;}
+
+  /* ---------- Features ---------- */
+  .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+  .feat-card{
+    position:relative;background:var(--artboard);border:1px solid var(--border);
+    border-radius:14px;padding:22px;
+    transition:transform var(--dur-standard) var(--ease-out),
+               border-color var(--dur-standard) var(--ease-out),
+               box-shadow var(--dur-standard) var(--ease-out);
+  }
+  .feat-card:hover, .feat-card.force-hover{
+    transform:translateY(-4px);border-color:var(--accent);
+    box-shadow:0 16px 30px -18px rgba(47,93,255,.45);
+  }
+  .feat-icon{
+    width:40px;height:40px;border-radius:10px;background:var(--accent-soft);
+    display:flex;align-items:center;justify-content:center;margin-bottom:14px;
+    transition:background var(--dur-standard) var(--ease-out);
+  }
+  .feat-icon svg{stroke:var(--accent);transition:stroke var(--dur-standard) var(--ease-out);}
+  .feat-card:hover .feat-icon, .feat-card.force-hover .feat-icon{background:var(--accent);}
+  .feat-card:hover .feat-icon svg, .feat-card.force-hover .feat-icon svg{stroke:#fff;}
+  .feat-card h4{font-family:var(--font-display);font-size:16.5px;margin:0 0 8px;}
+  .feat-card p{font-size:13.8px;line-height:1.55;color:var(--ink-soft);margin:0;}
+
+  /* ---------- Pricing ---------- */
+  .price-toggle-row{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:34px;}
+  .price-toggle-row span{font-family:var(--font-mono);font-size:12.5px;color:var(--ink-faint);transition:color var(--dur-standard) var(--ease-out);}
+  .price-toggle-row span.is-on{color:var(--ink);}
+  .switch{
+    position:relative;width:52px;height:28px;border-radius:16px;background:var(--border);
+    border:none;cursor:pointer;flex:none;
+    transition:background var(--dur-standard) var(--ease-out);
+  }
+  .switch:hover{background:#CBD2E6;}
+  .switch::after{
+    content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 3px rgba(27,42,74,.35);
+    transition:transform var(--dur-standard) var(--ease-out);
+  }
+  .switch.is-yearly{background:var(--accent);}
+  .switch.is-yearly::after{transform:translateX(24px);}
+  .save-badge{
+    font-family:var(--font-mono);font-size:11px;color:var(--success);background:var(--success-soft);
+    padding:3px 9px;border-radius:20px;opacity:0;transform:translateY(-3px);
+    transition:opacity var(--dur-standard) var(--ease-out), transform var(--dur-standard) var(--ease-out);
+  }
+  .save-badge.is-visible{opacity:1;transform:translateY(0);}
+
+  .price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+  .price-card{
+    border:1px solid var(--border);border-radius:16px;padding:26px 22px;background:var(--artboard);
+    transition:transform var(--dur-standard) var(--ease-out), box-shadow var(--dur-standard) var(--ease-out), border-color var(--dur-standard) var(--ease-out);
+  }
+  .price-card:hover{transform:translateY(-4px);box-shadow:0 16px 30px -18px rgba(27,42,74,.25);}
+  .price-card.is-popular{border-color:var(--accent);position:relative;}
+  .price-card.is-popular::before{
+    content:"Beliebt";position:absolute;top:-11px;left:22px;
+    background:var(--accent);color:#fff;font-family:var(--font-mono);font-size:10.5px;
+    text-transform:uppercase;letter-spacing:.06em;padding:3px 10px;border-radius:20px;
+  }
+  .price-card h4{font-family:var(--font-display);font-size:17px;margin:0 0 6px;}
+  .price-card .plan-desc{font-size:13px;color:var(--ink-soft);margin:0 0 18px;}
+  .price-figure{display:flex;align-items:baseline;gap:5px;margin-bottom:18px;min-height:46px;}
+  .price-figure .amount{font-family:var(--font-display);font-size:34px;position:relative;}
+  .price-figure .amount .val{transition:opacity var(--dur-standard) ease-in-out;}
+  .price-figure .cycle{font-family:var(--font-mono);font-size:12px;color:var(--ink-faint);}
+  .price-card ul{list-style:none;margin:0 0 22px;padding:0;display:flex;flex-direction:column;gap:9px;}
+  .price-card li{font-size:13.5px;color:var(--ink-soft);display:flex;gap:8px;align-items:flex-start;}
+  .price-card li svg{flex:none;stroke:var(--success);margin-top:2px;}
+  .btn-outline{
+    display:block;width:100%;text-align:center;padding:11px;border-radius:10px;
+    border:1.5px solid var(--ink);background:transparent;color:var(--ink);font-weight:600;font-size:14px;
+    cursor:pointer;transition:background var(--dur-standard) var(--ease-out), color var(--dur-standard) var(--ease-out);
+  }
+  .price-card.is-popular .btn-outline{background:var(--ink);color:#fff;}
+  .btn-outline:hover{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+  /* ---------- Testimonials ---------- */
+  .testi-viewport{overflow:hidden;border-radius:16px;background:var(--paper);border:1px solid var(--border);}
+  .testi-track{display:flex;transition:transform var(--dur-standard) var(--ease-out);}
+  .testi-slide{min-width:100%;padding:40px clamp(20px,6vw,64px);text-align:center;}
+  .testi-slide svg{margin:0 auto 18px;stroke:var(--accent);}
+  .testi-slide p.quote{font-family:var(--font-display);font-size:19px;line-height:1.5;max-width:560px;margin:0 auto 18px;}
+  .testi-slide .who{font-family:var(--font-mono);font-size:12.5px;color:var(--ink-soft);}
+  .testi-nav{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:20px;}
+  .testi-arrow{
+    width:38px;height:38px;border-radius:50%;border:1px solid var(--border);background:var(--artboard);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    transition:background var(--dur-standard) var(--ease-out), border-color var(--dur-standard) var(--ease-out);
+  }
+  .testi-arrow svg{stroke:var(--ink);transition:stroke var(--dur-standard) var(--ease-out);}
+  .testi-arrow:hover{background:var(--accent);border-color:var(--accent);}
+  .testi-arrow:hover svg{stroke:#fff;}
+  .testi-dots{display:flex;gap:8px;}
+  .testi-dots button{
+    width:8px;height:8px;border-radius:50%;border:none;background:var(--border);cursor:pointer;padding:0;
+    transition:background var(--dur-standard) var(--ease-out), transform var(--dur-standard) var(--ease-out);
+  }
+  .testi-dots button.is-active{background:var(--accent);transform:scale(1.3);}
+
+  /* ---------- Lead form ---------- */
+  .form-wrap{max-width:480px;margin:0 auto;position:relative;min-height:430px;}
+  .form-panel, .success-panel{
+    transition:opacity var(--dur-standard) var(--ease-out), transform var(--dur-standard) var(--ease-out);
+  }
+  .form-panel h3, .success-panel h3{font-family:var(--font-display);font-size:21px;margin:0 0 6px;text-align:center;}
+  .form-panel > p, .success-panel > p{font-size:13.5px;color:var(--ink-soft);text-align:center;margin:0 0 26px;}
+
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:12.5px;font-weight:600;color:var(--ink-soft);margin-bottom:6px;}
+  .field .input-shell{position:relative;}
+  .field input{
+    width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid var(--border);
+    font-family:inherit;font-size:14.5px;color:var(--ink);background:var(--artboard);
+    transition:border-color var(--dur-standard) var(--ease-out), box-shadow var(--dur-standard) var(--ease-out);
+  }
+  .field input::placeholder{color:var(--ink-faint);}
+  .field input:hover{border-color:#BFC7DE;}
+  .field input:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft);outline:none;}
+  .field.has-error input{border-color:var(--error);animation:shake 400ms var(--ease-out);}
+  .field.has-error input:focus{box-shadow:0 0 0 4px var(--error-soft);}
+  .error-msg{
+    display:none;align-items:center;gap:6px;font-size:12.5px;color:var(--error);margin-top:7px;font-weight:500;
+  }
+  .field.has-error .error-msg{display:flex;}
+  @keyframes shake{
+    0%,100%{transform:translateX(0);}
+    20%{transform:translateX(-6px);}
+    40%{transform:translateX(5px);}
+    60%{transform:translateX(-4px);}
+    80%{transform:translateX(3px);}
+  }
+
+  .btn-submit{
+    width:100%;padding:13px;border-radius:10px;border:none;background:var(--ink);color:#fff;
+    font-weight:600;font-size:14.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;
+    transition:background var(--dur-standard) var(--ease-out), transform var(--dur-standard) var(--ease-out), opacity var(--dur-standard) var(--ease-out);
+  }
+  .btn-submit:hover{background:var(--accent-dark);}
+  .btn-submit:active{transform:scale(.98);}
+  .btn-submit.is-loading{opacity:.85;cursor:progress;pointer-events:none;}
+  .btn-submit .spinner{
+    width:15px;height:15px;border-radius:50%;border:2px solid rgba(255,255,255,.35);
+    border-top-color:#fff;display:none;animation:spin 900ms linear infinite;
+  }
+  .btn-submit.is-loading .spinner{display:inline-block;}
+  .btn-submit.is-loading .btn-label{display:none;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .form-note{font-family:var(--font-mono);font-size:11.5px;color:var(--ink-faint);text-align:center;margin-top:14px;}
+
+  .success-panel{
+    position:absolute;inset:0;text-align:center;padding-top:8px;
+    opacity:0;transform:translateY(14px);pointer-events:none;
+  }
+  .check-circle{
+    width:64px;height:64px;border-radius:50%;background:var(--success-soft);
+    display:flex;align-items:center;justify-content:center;margin:0 auto 20px;
+  }
+  .check-circle svg path{
+    stroke-dasharray:24;stroke-dashoffset:24;
+    transition:stroke-dashoffset 500ms var(--ease-out) 150ms;
+  }
+  .success-panel .btn-outline{max-width:220px;margin:22px auto 0;}
+
+  .form-wrap.is-success .form-panel{opacity:0;transform:translateY(-12px);pointer-events:none;}
+  .form-wrap.is-success .success-panel{opacity:1;transform:translateY(0);pointer-events:auto;}
+  .form-wrap.is-success .success-panel .check-circle svg path{stroke-dashoffset:0;}
+
+  /* ---------- Global rules ---------- */
+  .global-rules{
+    background:var(--ink);color:#EAF0FF;border-radius:var(--radius);
+    padding:32px clamp(20px,4vw,52px);
+  }
+  .global-rules h2{font-family:var(--font-display);font-size:20px;margin:0 0 4px;}
+  .global-rules > p{font-size:13px;color:#AEBBE0;margin:0 0 24px;}
+  .rules-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+  .rule-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:16px;}
+  .rule-card .k{font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#8FA6FF;margin-bottom:8px;}
+  .rule-card .v{font-family:var(--font-mono);font-size:13.5px;color:#fff;margin-bottom:4px;}
+  .rule-card .d{font-size:12px;color:#AEBBE0;line-height:1.5;}
+
+  footer{text-align:center;padding:30px 0 50px;font-family:var(--font-mono);font-size:11.5px;color:var(--ink-faint);}
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:860px){
+    .hero-stage{grid-template-columns:1fr;}
+    .feat-grid{grid-template-columns:repeat(2,1fr);}
+    .price-grid{grid-template-columns:1fr;}
+    .rules-grid{grid-template-columns:repeat(2,1fr);}
+    .spec-table{font-size:12px;}
+  }
+  @media (max-width:560px){
+    .feat-grid{grid-template-columns:1fr;}
+    .wrap{padding:0 18px;}
+    .artboard{padding:28px 18px 26px;}
+    .rules-grid{grid-template-columns:1fr;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001ms !important; transition-duration:.001ms !important;}
+  }
+</style>
+</head>
+<body>
+
+<header class="page-head">
+  <div class="wrap">
+    <div class="kicker">Wireframe &amp; Prototyping-Konzept</div>
+    <h1>SaaS-Landingpage „Kontur" — Zustände &amp; Übergänge im Detail</h1>
+    <p>Klickbarer Mid-Fidelity-Prototyp mit annotierten Komponenten-Specs. Jede interaktive Fläche ist über die
+    nummerierten Marker mit ihrer Zustandstabelle verknüpft — Default, Hover, Active und Error sind live ausprobierbar,
+    nicht nur beschrieben.</p>
+    <div class="legend">
+      <span class="chip"><span class="dot default"></span>Default</span>
+      <span class="chip"><span class="dot hover"></span>Hover</span>
+      <span class="chip"><span class="dot active"></span>Active</span>
+      <span class="chip"><span class="dot error"></span>Error</span>
+      <span class="chip"><span class="dot success"></span>Success</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ HERO ============ -->
+  <section class="artboard" id="hero">
+    <div class="art-meta">
+      <span class="tag">01 · Hero Section</span>
+      <span class="desc">Primärer Einstiegspunkt. Ziel: Produktversprechen + CTA in unter 3 Sekunden erfassbar.</span>
+    </div>
+
+    <div class="stage hero-stage">
+      <div class="hero-copy">
+        <div class="hero-eyebrow">Workflow-Automatisierung</div>
+        <h2>Weniger Klickarbeit.<br>Mehr Überblick.</h2>
+        <p>Kontur verbindet eure Tools und automatisiert wiederkehrende Aufgaben — ohne dass ihr eine Zeile Code schreiben müsst.</p>
+
+        <div class="demo-switch" role="group" aria-label="CTA-Zustand vorschauen" data-target="hero-cta">
+          <button type="button" class="is-active" data-state="default">Default</button>
+          <button type="button" data-state="hover">Hover</button>
+          <button type="button" data-state="active">Active</button>
+        </div>
+
+        <div class="hero-actions">
+          <span class="pin-host">
+            <button class="btn-primary" id="hero-cta">
+              Kostenlos starten
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </button>
+            <span class="pin">1</span>
+          </span>
+          <a href="#" class="link-secondary" onclick="return false;">
+            Demo ansehen
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-14 9V3z"/></svg>
+          </a>
+        </div>
+        <div class="hero-trust">Keine Kreditkarte nötig · In 5 Minuten startklar</div>
+      </div>
+
+      <div class="hero-visual" aria-hidden="true">
+        <svg viewBox="0 0 420 320" fill="none">
+          <rect x="14" y="14" width="392" height="292" rx="14" stroke="#DDE2F0" stroke-width="1.5"/>
+          <rect x="34" y="38" width="120" height="14" rx="4" stroke="#2F5DFF" stroke-width="1.5"/>
+          <rect x="34" y="66" width="180" height="10" rx="3" stroke="#BFC7DE" stroke-width="1.5"/>
+          <rect x="34" y="104" width="352" height="70" rx="10" stroke="#2F5DFF" stroke-width="1.5" stroke-dasharray="4 5"/>
+          <path d="M54 150l30-28 26 16 40-34 36 22" stroke="#2F5DFF" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="34" y="192" width="112" height="94" rx="10" stroke="#BFC7DE" stroke-width="1.5"/>
+          <rect x="154" y="192" width="112" height="94" rx="10" stroke="#2F5DFF" stroke-width="1.5"/>
+          <rect x="274" y="192" width="112" height="94" rx="10" stroke="#BFC7DE" stroke-width="1.5"/>
+          <circle cx="90" cy="230" r="14" stroke="#BFC7DE" stroke-width="1.5"/>
+          <circle cx="210" cy="230" r="14" stroke="#2F5DFF" stroke-width="1.5"/>
+          <path d="M203 230l5 5 10-10" stroke="#2F5DFF" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="330" cy="230" r="14" stroke="#BFC7DE" stroke-width="1.5"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="spec-panel">
+      <h3>Spezifikation — Hero-CTA (Primary Button)</h3>
+      <table class="spec-table">
+        <thead><tr><th>#</th><th>Zustand</th><th>Auslöser</th><th>Visuelle Änderung</th><th>Dauer / Easing</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">1</td><td><span class="state-chip"><span class="dot default"></span>Default</span></td><td>—</td><td>Fläche Akzentblau, Schatten klein, Pfeil ruht</td><td class="mono">—</td></tr>
+          <tr><td class="mono">1</td><td><span class="state-chip"><span class="dot hover"></span>Hover</span></td><td>mouseenter / Fokus</td><td>Skaliert auf 1.03, Schatten wächst, Pfeil verschiebt sich +4px</td><td class="mono">300ms ease-out</td></tr>
+          <tr><td class="mono">1</td><td><span class="state-chip"><span class="dot active"></span>Active</span></td><td>mousedown / Tap</td><td>Skaliert auf 0.97, Fläche dunkelt ab, Schatten kollabiert</td><td class="mono">120ms ease-out</td></tr>
+          <tr><td class="mono">1</td><td><span class="state-chip"><span class="dot default"></span>Focus</span></td><td>Tab-Taste</td><td>2px Fokusring, 2px Abstand, Akzentblau</td><td class="mono">0ms (sofort)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ FEATURES ============ -->
+  <section class="artboard" id="features">
+    <div class="art-meta">
+      <span class="tag">02 · Feature-Grid</span>
+      <span class="desc">Sechs Kernfunktionen. Hover signalisiert Klickbarkeit auf Detailseiten, auch wenn hier nur Vorschau.</span>
+    </div>
+
+    <div class="demo-switch" role="group" aria-label="Feature-Karte-Zustand vorschauen" data-target="feat-demo-card">
+      <button type="button" class="is-active" data-state="default">Default</button>
+      <button type="button" data-state="hover">Hover</button>
+    </div>
+
+    <div class="stage feat-grid">
+      <span class="pin-host" style="grid-column:1;">
+        <div class="feat-card" id="feat-demo-card">
+          <div class="feat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 0 1 13.5-5.5M20 4v6h-6"/><path d="M20 12a8 8 0 0 1-13.5 5.5M4 20v-6h6"/></svg></div>
+          <h4>Automatisierte Workflows</h4>
+          <p>Verknüpft eure Tools ohne Code — Aufgaben laufen zuverlässig im Hintergrund.</p>
+        </div>
+        <span class="pin">2</span>
+      </span>
+
+      <div class="feat-card">
+        <div class="feat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="9" r="3"/><path d="M2 20c0-3 2.5-5 6-5s6 2 6 5"/><circle cx="17" cy="8" r="2.3"/><path d="M14.2 20c.3-2.5 2-4 4.3-4"/></svg></div>
+        <h4>Team-Ansicht in Echtzeit</h4>
+        <p>Seht sofort, wer woran arbeitet und wo ein Prozess ins Stocken gerät.</p>
+      </div>
+
+      <div class="feat-card">
+        <div class="feat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 8l10 5 10-5-10-5Z"/><path d="M2 13l10 5 10-5"/></svg></div>
+        <h4>Vorlagen-Bibliothek</h4>
+        <p>Startet mit über 80 fertigen Workflow-Vorlagen statt bei null.</p>
+      </div>
+
+      <div class="feat-card">
+        <div class="feat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 5-3.5 7.5-7 9-3.5-1.5-7-4-7-9V6l7-3Z"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <h4>Zugriffsrechte je Rolle</h4>
+        <p>Legt genau fest, wer was sehen, bearbeiten oder freigeben darf.</p>
+      </div>
+
+      <div class="feat-card">
+        <div class="feat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6Z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg></div>
+        <h4>Benachrichtigungen, die nicht nerven</h4>
+        <p>Nur relevante Updates, gebündelt statt einzeln.</p>
+      </div>
+
+      <div class="feat-card">
+        <div class="feat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5 3 12l5 7"/><path d="M16 5l5 7-5 7"/></svg></div>
+        <h4>Offene Schnittstelle</h4>
+        <p>Bindet eigene Tools über eine dokumentierte API ein.</p>
+      </div>
+    </div>
+
+    <div class="spec-panel">
+      <h3>Spezifikation — Feature-Card</h3>
+      <table class="spec-table">
+        <thead><tr><th>#</th><th>Zustand</th><th>Auslöser</th><th>Visuelle Änderung</th><th>Dauer / Easing</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">2</td><td><span class="state-chip"><span class="dot default"></span>Default</span></td><td>—</td><td>Weiße Fläche, dünner Rahmen, Icon in gedecktem Blau auf hellem Kachelgrund</td><td class="mono">—</td></tr>
+          <tr><td class="mono">2</td><td><span class="state-chip"><span class="dot hover"></span>Hover</span></td><td>mouseenter</td><td>translateY(-4px), Rahmen wird Akzentblau, Schatten wächst, Icon-Kachel füllt sich voll, Icon-Strich wird Weiß</td><td class="mono">300ms ease-out</td></tr>
+          <tr><td class="mono">2</td><td><span class="state-chip"><span class="dot active"></span>Active</span></td><td>mousedown (bei Verlinkung)</td><td>Kurzes Skalieren auf 0.98 vor Navigation</td><td class="mono">150ms ease-out</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ PRICING ============ -->
+  <section class="artboard" id="pricing">
+    <div class="art-meta">
+      <span class="tag">03 · Preis-Umschalter</span>
+      <span class="desc">Monatlich/Jährlich steuert alle drei Preis-Karten synchron. Realer Klick-Zustand, keine Simulation.</span>
+    </div>
+
+    <div class="stage">
+      <span class="pin-host" style="display:flex;justify-content:center;">
+        <div class="price-toggle-row">
+          <span id="label-monthly" class="is-on">Monatlich</span>
+          <button class="switch" id="price-switch" role="switch" aria-checked="false" aria-label="Zwischen monatlicher und jährlicher Abrechnung wechseln"></button>
+          <span id="label-yearly">Jährlich</span>
+          <span class="save-badge" id="save-badge">2 Monate geschenkt</span>
+        </div>
+        <span class="pin" style="top:-10px;right:auto;left:calc(50% + 90px);">3</span>
+      </span>
+
+      <div class="price-grid">
+        <div class="price-card">
+          <h4>Starter</h4>
+          <p class="plan-desc">Für einzelne Teams, die loslegen wollen.</p>
+          <div class="price-figure">
+            <span class="amount">€<span class="val" data-monthly="9" data-yearly="7">9</span></span>
+            <span class="cycle">/ Monat</span>
+          </div>
+          <ul>
+            <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>Bis 5 Nutzer:innen</li>
+            <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>10 aktive Workflows</li>
+            <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>E-Mail-Support</li>
+          </ul>
+          <button class="btn-outline">Plan wählen</button>
+        </div>
+
+        <div class="price-card is-popular">
+          <h4>Team</h4>
+          <p class="plan-desc">Für Teams mit wachsenden Prozessen.</p>
+          <div class="price-figure">
+            <span class="amount">€<span class="val" data-monthly="29" data-yearly="23">29</span></span>
+            <span class="cycle">/ Monat</span>
+          </div>
+          <ul>
+            <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>Bis 25 Nutzer:innen</li>
+            <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>Unbegrenzte Workflows</li>
+            <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>Prioritäts-Support</li>
+          </ul>
+          <button class="btn-outline">Plan wählen</button>
+        </div>
+
+        <div class="price-card">
+          <h4>Business</h4>
+          <p class="plan-desc">Für mehrere Teams und komplexe Freigaben.</p>
+          <div class="price-figure">
+            <span class="amount">€<span class="val" data-monthly="79" data-yearly="63">79</span></span>
+            <span class="cycle">/ Monat</span>
+          </div>
+          <ul>
+            <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>Unbegrenzte Nutzer:innen</li>
+            <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>Rollen &amp; Freigabeketten</li>
+            <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>Dediziertes Onboarding</li>
+          </ul>
+          <button class="btn-outline">Plan wählen</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="spec-panel">
+      <h3>Spezifikation — Pricing-Toggle</h3>
+      <table class="spec-table">
+        <thead><tr><th>#</th><th>Zustand</th><th>Auslöser</th><th>Visuelle Änderung</th><th>Dauer / Easing</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">3</td><td><span class="state-chip"><span class="dot default"></span>Monatlich</span></td><td>Seiteneinstieg</td><td>Thumb links, Preise zeigen Monatswert</td><td class="mono">—</td></tr>
+          <tr><td class="mono">3</td><td><span class="state-chip"><span class="dot hover"></span>Hover (Track)</span></td><td>mouseenter</td><td>Track-Hintergrund dunkelt minimal ab</td><td class="mono">300ms ease-out</td></tr>
+          <tr><td class="mono">3</td><td><span class="state-chip"><span class="dot active"></span>Jährlich (Active)</span></td><td>Klick auf Toggle</td><td>Thumb slidet per translateX, Preistext crossfadet zum Jahreswert, Spar-Badge blendet ein</td><td class="mono">300ms ease-out (Thumb) · 200ms (Crossfade)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ TESTIMONIALS ============ -->
+  <section class="artboard" id="testimonials">
+    <div class="art-meta">
+      <span class="tag">04 · Testimonials</span>
+      <span class="desc">Horizontaler Slide-Übergang zwischen drei Stimmen. Pfeile und Dots steuern denselben Index.</span>
+    </div>
+
+    <div class="stage">
+      <span class="pin-host" style="display:block;">
+        <div class="testi-viewport">
+          <div class="testi-track" id="testi-track">
+            <div class="testi-slide">
+              <svg width="30" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M7 8c-2.5 0-4 2-4 4.5S4.5 17 7 17s3.5-2 3.5-4.2c0-2-1-3.5-3-3.8.3-1.6 1.6-2.7 3-3V4C7.8 4.5 7 6 7 8Z"/><path d="M17 8c-2.5 0-4 2-4 4.5S14.5 17 17 17s3.5-2 3.5-4.2c0-2-1-3.5-3-3.8.3-1.6 1.6-2.7 3-3V4c-2.7.5-3.5 2-3.5 4Z"/></svg>
+              <p class="quote">„Kontur hat unsere Übergaben zwischen Support und Produkt komplett vereinfacht."</p>
+              <div class="who">Jana R. — Head of Support, SaaS-Startup</div>
+            </div>
+            <div class="testi-slide">
+              <svg width="30" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M7 8c-2.5 0-4 2-4 4.5S4.5 17 7 17s3.5-2 3.5-4.2c0-2-1-3.5-3-3.8.3-1.6 1.6-2.7 3-3V4C7.8 4.5 7 6 7 8Z"/><path d="M17 8c-2.5 0-4 2-4 4.5S14.5 17 17 17s3.5-2 3.5-4.2c0-2-1-3.5-3-3.8.3-1.6 1.6-2.7 3-3V4c-2.7.5-3.5 2-3.5 4Z"/></svg>
+              <p class="quote">„Wir haben in der ersten Woche schon vier manuelle Prozesse abgelöst."</p>
+              <div class="who">Tom B. — Operations Lead</div>
+            </div>
+            <div class="testi-slide">
+              <svg width="30" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M7 8c-2.5 0-4 2-4 4.5S4.5 17 7 17s3.5-2 3.5-4.2c0-2-1-3.5-3-3.8.3-1.6 1.6-2.7 3-3V4C7.8 4.5 7 6 7 8Z"/><path d="M17 8c-2.5 0-4 2-4 4.5S14.5 17 17 17s3.5-2 3.5-4.2c0-2-1-3.5-3-3.8.3-1.6 1.6-2.7 3-3V4c-2.7.5-3.5 2-3.5 4Z"/></svg>
+              <p class="quote">„Endlich ein Tool, das mein Team wirklich benutzt, statt es zu ignorieren."</p>
+              <div class="who">Nora K. — Teamleitung Marketing</div>
+            </div>
+          </div>
+        </div>
+        <span class="pin" style="top:8px;right:8px;">4</span>
+      </span>
+
+      <div class="testi-nav">
+        <button class="testi-arrow" id="testi-prev" aria-label="Vorheriges Testimonial">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+        </button>
+        <div class="testi-dots" id="testi-dots">
+          <button class="is-active" data-i="0" aria-label="Testimonial 1"></button>
+          <button data-i="1" aria-label="Testimonial 2"></button>
+          <button data-i="2" aria-label="Testimonial 3"></button>
+        </div>
+        <button class="testi-arrow" id="testi-next" aria-label="Nächstes Testimonial">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="spec-panel">
+      <h3>Spezifikation — Testimonial-Slider</h3>
+      <table class="spec-table">
+        <thead><tr><th>#</th><th>Zustand</th><th>Auslöser</th><th>Visuelle Änderung</th><th>Dauer / Easing</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">4</td><td><span class="state-chip"><span class="dot default"></span>Default</span></td><td>—</td><td>Slide 1 sichtbar, Dot 1 aktiv</td><td class="mono">—</td></tr>
+          <tr><td class="mono">4</td><td><span class="state-chip"><span class="dot active"></span>Active (Wechsel)</span></td><td>Klick Dot / Pfeil</td><td>Track verschiebt sich per translateX um 100% je Schritt, aktiver Dot wechselt Farbe &amp; skaliert</td><td class="mono">300ms ease-out</td></tr>
+          <tr><td class="mono">4</td><td><span class="state-chip"><span class="dot hover"></span>Hover (Pfeil)</span></td><td>mouseenter</td><td>Kreisfläche füllt sich Akzentblau, Icon wird Weiß</td><td class="mono">300ms ease-out</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ LEAD FORM ============ -->
+  <section class="artboard" id="leadform">
+    <div class="art-meta">
+      <span class="tag">05 · Lead-Gen-Formular</span>
+      <span class="desc">Vollständig klickbar: ungültige E-Mail löst Error-State aus, gültige Eingabe führt über Loading zu Success.</span>
+    </div>
+
+    <div class="stage">
+      <div class="form-wrap" id="form-wrap">
+        <div class="form-panel">
+          <h3>Zugang anfragen</h3>
+          <p>Für Teams ab 2 Personen. Antwort innerhalb eines Werktags.</p>
+
+          <form id="lead-form" novalidate>
+            <div class="field">
+              <label for="f-name">Name</label>
+              <div class="input-shell">
+                <input type="text" id="f-name" placeholder="Vor- und Nachname" autocomplete="name">
+              </div>
+            </div>
+
+            <span class="pin-host" style="display:block;">
+              <div class="field" id="f-email-field">
+                <label for="f-email">Arbeits-E-Mail</label>
+                <div class="input-shell">
+                  <input type="email" id="f-email" placeholder="du@unternehmen.de" autocomplete="email">
+                </div>
+                <div class="error-msg">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+                  Bitte gib eine gültige E-Mail-Adresse ein.
+                </div>
+              </div>
+              <span class="pin">5</span>
+            </span>
+
+            <div class="field">
+              <label for="f-company">Unternehmen <span style="font-weight:400;color:var(--ink-faint);">(optional)</span></label>
+              <div class="input-shell">
+                <input type="text" id="f-company" placeholder="Firmenname" autocomplete="organization">
+              </div>
+            </div>
+
+            <button type="submit" class="btn-submit" id="submit-btn">
+              <span class="btn-label">Zugang anfragen</span>
+              <span class="spinner"></span>
+            </button>
+          </form>
+          <div class="form-note">Kein Spam · Abmeldung jederzeit möglich</div>
+        </div>
+
+        <div class="success-panel" id="success-panel">
+          <div class="check-circle">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#1FAA59" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>
+          </div>
+          <h3>Fast geschafft!</h3>
+          <p>Wir haben eine Bestätigung an <strong id="success-email">deine E-Mail</strong> geschickt.</p>
+          <button type="button" class="btn-outline" id="reset-form">Formular zurücksetzen</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="spec-panel">
+      <h3>Spezifikation — Formularfeld &amp; Submit</h3>
+      <table class="spec-table">
+        <thead><tr><th>#</th><th>Zustand</th><th>Auslöser</th><th>Visuelle Änderung</th><th>Dauer / Easing</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">5</td><td><span class="state-chip"><span class="dot default"></span>Default</span></td><td>—</td><td>Grauer Rahmen (1.5px), Platzhaltertext sichtbar</td><td class="mono">—</td></tr>
+          <tr><td class="mono">5</td><td><span class="state-chip"><span class="dot hover"></span>Hover</span></td><td>mouseenter</td><td>Rahmen dunkelt zu Grauton 2</td><td class="mono">300ms ease-out</td></tr>
+          <tr><td class="mono">5</td><td><span class="state-chip"><span class="dot active"></span>Focus / Active</span></td><td>Klick / Tab</td><td>Rahmen wird Akzentblau, Fokusring 4px bei 12% Deckkraft</td><td class="mono">300ms ease-out</td></tr>
+          <tr><td class="mono">5</td><td><span class="state-chip"><span class="dot error"></span>Error</span></td><td>Blur mit ungültigem Wert / Submit</td><td>Rahmen wird Rot, Fehlertext erscheint, Feld führt einmaliges Shake aus (±6px, 4 Keyframes)</td><td class="mono">300ms (Rahmen) · 400ms (Shake)</td></tr>
+          <tr><td class="mono">–</td><td><span class="state-chip"><span class="dot default"></span>Submit: Loading</span></td><td>Klick mit gültigen Daten</td><td>Text wird durch Spinner ersetzt, Button-Breite bleibt fix, Opacity 0.85</td><td class="mono">200ms Crossfade · Spinner 900ms linear infinite</td></tr>
+          <tr><td class="mono">–</td><td><span class="state-chip"><span class="dot success"></span>Success</span></td><td>Nach simulierter Ladezeit (~900ms)</td><td>Formular-Panel faded/slidet nach oben aus, Success-Panel slidet ein, Haken zeichnet sich per stroke-dashoffset</td><td class="mono">300ms Panel-Wechsel · 500ms Haken (150ms Delay)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ GLOBAL RULES ============ -->
+  <section class="global-rules">
+    <h2>Übergangs-Grundregeln (Design-Tokens)</h2>
+    <p>Sitweite verbindliche Werte — jede Komponenten-Spec oben referenziert eine dieser Kategorien.</p>
+    <div class="rules-grid">
+      <div class="rule-card">
+        <div class="k">Mikro-Interaktion</div>
+        <div class="v">150 – 200ms · ease-out</div>
+        <div class="d">Für Zustandswechsel an kleinen Elementen: Icons, Dots, Toggles beim Loslassen.</div>
+      </div>
+      <div class="rule-card">
+        <div class="k">Standard-Zustand</div>
+        <div class="v">300ms · ease-out</div>
+        <div class="d">Der Regelfall: Hover, Border, Schatten, Farbwechsel. Entspricht Smart Animate zwischen Varianten in Figma.</div>
+      </div>
+      <div class="rule-card">
+        <div class="k">Panel- / Frame-Wechsel</div>
+        <div class="v">300 – 500ms · ease-out</div>
+        <div class="d">Formular → Success, Slide-Wechsel bei Testimonials. Leichtes Delay (100–150ms) für sekundäre Elemente wie den Haken.</div>
+      </div>
+      <div class="rule-card">
+        <div class="k">Fehler-Feedback</div>
+        <div class="v">400ms · 4-Step Shake</div>
+        <div class="d">Einmalig, nicht wiederholend. Kombiniert mit sofortigem Farbwechsel des Rahmens (300ms).</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>Kontur — Prototyping-Konzept · Alle Inhalte fiktiv, zu Demonstrationszwecken</footer>
+
+<script>
+(function(){
+  // Generic state-demo switcher (forces .force-hover / .force-active classes)
+  document.querySelectorAll('.demo-switch').forEach(function(group){
+    var targetEl = document.getElementById(group.dataset.target);
+    group.querySelectorAll('button').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        group.querySelectorAll('button').forEach(function(b){ b.classList.remove('is-active'); });
+        btn.classList.add('is-active');
+        targetEl.classList.remove('force-hover','force-active');
+        var s = btn.dataset.state;
+        if(s === 'hover') targetEl.classList.add('force-hover');
+        if(s === 'active') targetEl.classList.add('force-active');
+      });
+    });
+  });
+
+  // Pricing toggle
+  var swi = document.getElementById('price-switch');
+  var badge = document.getElementById('save-badge');
+  var lblM = document.getElementById('label-monthly');
+  var lblY = document.getElementById('label-yearly');
+  var yearly = false;
+
+  function renderPrices(){
+    document.querySelectorAll('.price-figure .val').forEach(function(el){
+      var target = yearly ? el.dataset.yearly : el.dataset.monthly;
+      el.style.opacity = 0;
+      setTimeout(function(){
+        el.textContent = target;
+        el.style.opacity = 1;
+      }, 120);
+    });
+  }
+
+  swi.addEventListener('click', function(){
+    yearly = !yearly;
+    swi.classList.toggle('is-yearly', yearly);
+    swi.setAttribute('aria-checked', yearly);
+    badge.classList.toggle('is-visible', yearly);
+    lblM.classList.toggle('is-on', !yearly);
+    lblY.classList.toggle('is-on', yearly);
+    renderPrices();
+  });
+
+  // Testimonials
+  var track = document.getElementById('testi-track');
+  var dots = Array.prototype.slice.call(document.querySelectorAll('#testi-dots button'));
+  var idx = 0;
+  function goTo(i){
+    idx = (i + dots.length) % dots.length;
+    track.style.transform = 'translateX(-' + (idx*100) + '%)';
+    dots.forEach(function(d,di){ d.classList.toggle('is-active', di===idx); });
+  }
+  document.getElementById('testi-prev').addEventListener('click', function(){ goTo(idx-1); });
+  document.getElementById('testi-next').addEventListener('click', function(){ goTo(idx+1); });
+  dots.forEach(function(d){ d.addEventListener('click', function(){ goTo(parseInt(d.dataset.i,10)); }); });
+
+  // Lead form
+  var form = document.getElementById('lead-form');
+  var emailField = document.getElementById('f-email-field');
+  var emailInput = document.getElementById('f-email');
+  var submitBtn = document.getElementById('submit-btn');
+  var formWrap = document.getElementById('form-wrap');
+  var successEmail = document.getElementById('success-email');
+
+  function validEmail(v){
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  }
+
+  emailInput.addEventListener('input', function(){
+    if(emailField.classList.contains('has-error') && validEmail(emailInput.value.trim())){
+      emailField.classList.remove('has-error');
+    }
+  });
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var email = emailInput.value.trim();
+    if(!validEmail(email)){
+      emailField.classList.remove('has-error');
+      void emailField.offsetWidth; // restart shake animation
+      emailField.classList.add('has-error');
+      emailInput.focus();
+      return;
+    }
+    emailField.classList.remove('has-error');
+    submitBtn.classList.add('is-loading');
+    setTimeout(function(){
+      submitBtn.classList.remove('is-loading');
+      successEmail.textContent = email;
+      formWrap.classList.add('is-success');
+    }, 900);
+  });
+
+  document.getElementById('reset-form').addEventListener('click', function(){
+    formWrap.classList.remove('is-success');
+    form.reset();
+    emailField.classList.remove('has-error');
+    document.getElementById('f-name').focus();
+  });
+})();
+</script>
+
+</body>
+</html>
